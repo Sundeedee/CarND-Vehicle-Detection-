@@ -16,12 +16,12 @@ The goals / steps of this project are the following:
 
 [//]: # (Image References)
 [image1]: ./examples/car_not_car.png
-[image2]: ./examples/HOG_example.jpg
+[image2]: ./output_images/images2.jpg
 [image3]: ./output_images/images3.jpg
-[image4]: ./output_images/images5.jpg
-[image5]: ./output_images/images3.png
-[image6]: ./output_images/images3.png
-[image7]: ./output_images/images3.png
+[image4]: ./output_images/images4.jpg
+[image5]: ./output_images/images5.png
+[image6]: ./output_images/images5.png
+[image7]: ./output_images/images5.png
 [video1]: ./white.mp4
 
 ## [Rubric](https://review.udacity.com/#!/rubrics/513/view) Points
@@ -53,7 +53,7 @@ Here is an example using the `YCrCb` color space and HOG parameters of `orientat
 
 ####2. Explain how you settled on your final choice of HOG parameters.
 
-I tried various combinations of parameters and...
+I tried various combinations of parameters and determine to use color features,spartial features and HOG features.
 
 ####3. Describe how (and identify where in your code) you trained a classifier using your selected HOG features (and color features if you used them).
 
@@ -64,12 +64,12 @@ I trained a linear SVM using sklearn-standardscaler to get the normalized featur
 ####1. Describe how (and identify where in your code) you implemented a sliding window search.  How did you decide what scales to search and how much to overlap windows?
 
 I decided to search pick random scale and draw the windows, the classify result and the heatmap to see how are their performance
-for each scale value.
+for each scale value. I used the 1.5 scale on the test video and test images. The vehicle can detected perfectly so I decide to use 1.5 scale.
 ![alt text][image3]
 
 ####2. Show some examples of test images to demonstrate how your pipeline is working.  What did you do to optimize the performance of your classifier?
 
-Ultimately I searched on two scales using YCrCb 3-channel HOG features plus spatially binned color and histograms of color in the feature vector, which provided a nice result.  Here are some example images:
+Ultimately I searched on 1 scales using YCrCb 3-channel HOG features plus spatially binned color and histograms of color in the feature vector, which provided a nice result.  Also, in order to get better bounding box candidate,  Here are some example images:
 
 ![alt text][image4]
 ---
@@ -82,7 +82,9 @@ Here's a [link to my video result](./white.mp4)
 
 ####2. Describe how (and identify where in your code) you implemented some kind of filter for false positives and some method for combining overlapping bounding boxes.
 
-I recorded the positions of positive detections in each frame of the video.  From the positive detections I created a heatmap class to store recent 10 frames' heatmap and then thresholded their sum of the heatmap to identify vehicle positions.  I then used `scipy.ndimage.measurements.label()` to identify individual blobs in the heatmap.  I then assumed each blob corresponded to a vehicle.  I constructed bounding boxes to cover the area of each blob detected.  
+I used the SVM proba to train the classifier, so I can get the probability for each bounding box classifier found. Then I applied Non-maximum suppress to these boxes with their scores as the first filter.
+
+After that I recorded the positions of positive detections in each frame of the video.  From the positive detections I created a heatmap class to store recent 10 frames' heatmap and then thresholded their sum of the heatmap to identify vehicle positions.  I then used `scipy.ndimage.measurements.label()` to identify individual blobs in the heatmap.  I then assumed each blob corresponded to a vehicle.  I constructed bounding boxes to cover the area of each blob detected.  
 
 Here's an example result showing the heatmap from a series of frames of video, the result of `scipy.ndimage.measurements.label()` and the bounding boxes then overlaid on the last frame of video:
 
@@ -105,6 +107,8 @@ Here's an example result showing the heatmap from a series of frames of video, t
 ####1. Briefly discuss any problems / issues you faced in your implementation of this project.  Where will your pipeline likely fail?  What could you do to make it more robust?
 
 First problem I faced is the color space, I notice the original function udacity provided is using mpimg to read the image and it will scale the value below 1. So I changed to use cv2.imread and delete the normalization to ensure the images have same preprocessing. My pipieline always have false detection on the right side of the road. First I think maybe the training dataset has few right side images, so I augment both car and no car dataset by flipping each dataset images. But after I implemented this method, the result is still not good. I am still trying to make the argrithum more robust, such as tunning the scale of the sliding windows or the overlap fraction for different scales windows.
+
+I could add the probability for each car SVM found and lane finding feature or the distance from the detected car to our vehicle by using perspective transform just like we did in the previous project.
 
 
 
